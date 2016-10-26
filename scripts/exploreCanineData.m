@@ -51,7 +51,7 @@
 %% ESTIMATE RCOVERY TIMES
 	recoveryTimes = zeros(M,NBT);
 	for bb = 1:NBT
-		[~, dy] = findMinDVDT(Tseg{bb}, 19, 2);
+		[~, dy] = findMinDVDT(-Tseg{bb}, 19, 2);
 		[~, recoveryTimes(:,bb)] = max(dy(:,20:end),[],2);
 		recoveryTimes(:,bb) = recoveryTimes(:,bb) +20;
 	end
@@ -75,4 +75,7 @@
                               };
 	
 	plot_map3d(	geomCommand, potentialCommand, optionsCommand);
+	
+	
+%% Compute RVI
 	
