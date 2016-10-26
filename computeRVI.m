@@ -87,7 +87,7 @@ function [RVI, RVImax, RVImean] = computeRVI(repolTimes, actTimes, geom)
 	%% compute all RVI of each node
 		maxDeg = max(sum(downstreamMtrx,2));
 		
-		RVI = zeros(M,maxDeg);
+		RVI = nan(M,maxDeg);
 		for ii = 1:M
 			indx = find(downstreamMtrx(ii,:));
 			for jj = 1:numel(indx)
@@ -96,7 +96,12 @@ function [RVI, RVImax, RVImean] = computeRVI(repolTimes, actTimes, geom)
 		end
 	
 	%% compute RVI map
-		RVImax = max(RVI,[],2);
-		RVImean = mean(RVI,2);
-	
+		RVImax = zeros(M,1);
+		RVImean = zeros(M,1);
+		for ii = 1:M
+			RVImax(ii) = max(RVI(ii,~isnan(RVI(ii,:))));
+			RVImean(ii) = mean(RVI(ii,~isnan(RVI(ii,:))));
+		end
+		RVImean(isnan(RVImean)) = mean(RVImean(~isnan(RVImean)));
+		RVImax(isnan(RVImax)) = mean(RVImax(~isnan(RVImax)));
 end
