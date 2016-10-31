@@ -18,10 +18,14 @@ else
     end
     dXdt=dXdt(:,1:end-1);
 end
-% DX=sqrt(DX); % DX now contains the gradient norms over time
 
-% objfun=DX.*dXdt; % objfun now contains the gradient norms weighted by negative temporal slope
-objfun=dXdt;
+DX=sqrt(DX); % DX now contains the gradient norms over time
+
+% the times with the greatest spatial gradient weighted by negative
+% temporal slope are the activation times we choose
+objfun=DX.*dXdt; % objfun now contains the gradient norms weighted by negative temporal slope
+
+% objfun=dXdt;
 % the times with the greatest spatial gradient weighted by negative
 % temporal slope are the activation times we choose
 [val,tau]=min(objfun,[],2);
