@@ -5,6 +5,7 @@ function [tau,objfun,DX,dXdt] = spatiotemporalActtimes(X,D,varargin)
 % D=[Dx;Dy;Dz] in block matrix form
 
 if(size(varargin,2)>0),window=varargin{1};else window=1;end;
+if(size(varargin,2)>1),alpha=varargin{2};else alpha=1;end;
 
 N=size(X,1);
 
@@ -16,14 +17,14 @@ else
     for i=1:size(X,1)
         dXdt(i,:)=polydiff(X(i,:),window,2);
     end
-    dXdt=dXdt(:,1:end-1);
+    dXdt=dXdt(:,1:end);
 end
 
-DX=sqrt(DX); % DX now contains the gradient norms over time
+% DX=sqrt(DX); % DX now contains the gradient norms over time
 
 % the times with the greatest spatial gradient weighted by negative
 % temporal slope are the activation times we choose
-objfun=DX.*dXdt; % objfun now contains the gradient norms weighted by negative temporal slope
+objfun= ((1-alpha)*ones(size(DX)) + alpha*DX).*dXdt; % objfun now contains the gradient norms weighted by negative temporal slope
 
 % objfun=dXdt;
 % the times with the greatest spatial gradient weighted by negative

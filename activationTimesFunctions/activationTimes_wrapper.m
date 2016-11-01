@@ -22,14 +22,14 @@
 %
 %
 
-function [acttimes] = activationTimes_wrapper(EGM,Dtan,Ltan)
+function [acttimes] = activationTimes_wrapper(EGM,Dtan,Ltan, alpha)
 	
 	% parameters
 	twindow = 9;
 	smoothingLambda = 10.^linspace(-10,6,1500);
 
 	% activation times estimation
-	acttimes = spatiotemporalActtimes(EGM,Dtan,twindow);
+	acttimes = spatiotemporalActtimes(EGM,Dtan,twindow, alpha);
 
 	% smooth activaation times
 % 	acttimes = smoothactivationtimes( Ltan, acttimes, smoothingLambda);
