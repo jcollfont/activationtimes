@@ -33,7 +33,7 @@ function [AdjMtrx] = computeAdjacencyMatrix(geom, pathLength)
 		end
 			
 	%% create 1rst order adjacency matrix
-		adjMtrx = zeros(M);
+		adjMtrx = false(M);
 		for ii = 1:numFac;
 			adjMtrx(geom.face(1,ii),geom.face(2,ii)) = 1;%distance(geom.face(1,ii),geom.face(2,ii));
 			adjMtrx(geom.face(2,ii),geom.face(3,ii)) = 1;%distance(geom.face(2,ii),geom.face(3,ii));
@@ -44,4 +44,13 @@ function [AdjMtrx] = computeAdjacencyMatrix(geom, pathLength)
 		end
 		
 	%% extend adjacency matrix according to path length
+	AdjMtrx = adjMtrx + eye(M);
+	for rep = 1:(pathLength-1)
+		for n =1:M
+			neighbors = find(AdjMtrx(n,:));
+			for m = neighbors
+				AdjMtrx(n,:) = AdjMtrx(n,:)|adjMtrx(m,:);
+			end
+		end
+	end
 end

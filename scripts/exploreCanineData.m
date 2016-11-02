@@ -18,13 +18,22 @@
 	% baseline removal params
 	prevMargin = 80; % select before Qwave
 	intLength = 10; % averagie interval to take reference
+	
+	% Gradient estimator
+	pathLength = 2;	% number of jumps on graph to determine neighborhood
+	
+	% activation times estimator
+	windowQRS = 11;
+	windowT = 19;
 
 
 %% LOAD DATA
-	load data_bspiral/TWA/realData/rsm-12-10-03/mat/Run0234-sock.mat
+	load data_bspiral/TWA/realData/rsm-12-10-03/mat/Run0234-sock.mat;
 	potvals = ts.potvals;
+	load data_bspiral/geometry_modification/inputGeometry/rsm10-27-2014_sock.mat;
 	
 	M = size(potvals,1);
+	Mh = max(size(heart.node));
 	
 %% CLEAN DATA
 	% remove badleads
@@ -40,20 +49,28 @@
 		[Tseg, qrs_peaks] = segmentHeartBeats_bySections_fixedLength(filt_potvals, startT, lengthT, 1);
 		NBT = numel(Tseg);
 		NBQRS = numel(QRSseg);
+		
+%% DETERMINE GRADIENT MATRICES
+	% compute adjacency matrix
+	[AdjMtrx] = computeAdjacencyMatrix(heart, pathLength);
+	
+	% compute gradient estimator
+	wghFcn = @(indx) AdjMtrx(indx,:);
+	[D, H] = meshVolDiffHessMatrix(heart,wghFcn);	
+	Ltan=LaplacianMatrixFromHessianMatrix(H);
 
 %% ESTIMATE ACTIVATION TIMES
-	activationTimes = zeros(M,NBQRS);
+	activationTimes = zeros(Mh,NBQRS);
 	for bb = 1:NBQRS
-		[~, dy] = findMinDVDT(QRSseg{bb}, 11, 2);
-		[~, activationTimes(:,bb)] = min(dy,[],2);
+		T = size(QRSseg{bb},2);
+		[activationTimes(:,bb)] = spatiotemporalActtimes( [QRSseg{bb}; zeros(Mh-M,T)], D, windowQRS);
 	end
 	
 %% ESTIMATE RCOVERY TIMES
-	recoveryTimes = zeros(M,NBT);
+	recoveryTimes = zeros(Mh,NBT);
 	for bb = 1:NBT
-		[~, dy] = findMinDVDT(Tseg{bb}, 19, 2);
-		[~, recoveryTimes(:,bb)] = max(dy(:,20:end),[],2);
-		recoveryTimes(:,bb) = recoveryTimes(:,bb) +20;
+		T = size(Tseg{bb},2);
+		[recoveryTimes(:,bb)] = spatiotemporalActtimes( [Tseg{bb}; zeros(Mh-M,T)], D, windowT);
 	end
 
 %% PLOT
@@ -61,9 +78,9 @@
 	geomFile = sprintf(' data_bspiral/geometry_modification/inputGeometry/rsm10-27-2014_sock.mat');
 	geomCommand = {geomFile, geomFile};
 	
-	recoveryTimes = [recoveryTimes; max(recoveryTimes(:))*ones(337-M,NBT)];
+% 	recoveryTimes = [recoveryTimes; max(recoveryTimes(:))*ones(337-M,NBT)];
 	save('tmp/heart2.mat','recoveryTimes');
-	activationTimes = [activationTimes; max(activationTimes(:))*ones(337-M, NBQRS)];
+% 	activationTimes = [activationTimes; max(activationTimes(:))*ones(337-M, NBQRS)];
 	save('tmp/heart1.mat','activationTimes');
 	potentialCommand = { sprintf(' tmp/heart%d.mat',1),sprintf(' tmp/heart%d.mat',2) };
 
