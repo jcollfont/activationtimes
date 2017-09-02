@@ -14,10 +14,10 @@ If you have questions about the code or are interested in development, please co
 
 ## Contents:
 
-### scripts/
+### scripts
 This folder contains scripts that run the functions in the other folders. We recommended to look at "RegMatrixEstimation_example.m" to have a reference on how to compute the estimators of gradient, Hessians and Laplacian functions on a surface geometry.
 
-### computeGradientAndHessian/
+### computeGradientAndHessian
 This folder contains all the functions that are necessary to compute the estimators of gradient, Hessians and Laplacian functions on a surface geometry. Please, look at the scripts folder for references on how to use them.
 The most important functions are:
 * **meshsurfdiffhessmatrix:** computes estimators using the neighbor nodes (defined by the surface graph).
