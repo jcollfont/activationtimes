@@ -43,6 +43,7 @@ function [tau,objfun,DX,dXdt] = spatiotemporalActtimes(X,D,varargin)
 		objfun= DX.*dXdt; % objfun now contains the gradient norms weighted by negative temporal slope
 
 	%% FIND MINIMUM OF THE OBJECTIVE FUNCTION
-		[val,tau]=min(objfun,[],2);
+		[val,tau]=min(objfun(:,11:end),[],2);
+		tau = tau + 10;
 
 end
